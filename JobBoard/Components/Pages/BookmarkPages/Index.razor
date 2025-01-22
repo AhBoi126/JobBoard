@@ -1,0 +1,41 @@
+﻿@page "/bookmarks"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using FullStackProject.Domain
+@using JobBoard.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="bookmarks/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Bookmark">
+    <PropertyColumn Property="bookmark => bookmark.JobSeekerID" />
+    <PropertyColumn Property="bookmark => bookmark.JobID" />
+    <PropertyColumn Property="bookmark => bookmark.DateCreated" />
+    <PropertyColumn Property="bookmark => bookmark.DateUpdated" />
+    <PropertyColumn Property="bookmark => bookmark.CreatedBy" />
+    <PropertyColumn Property="bookmark => bookmark.UpdatedBy" />
+
+    <TemplateColumn Context="bookmark">
+        <a href="@($"bookmarks/edit?id={bookmark.Id}")">Edit</a> |
+        <a href="@($"bookmarks/details?id={bookmark.Id}")">Details</a> |
+        <a href="@($"bookmarks/delete?id={bookmark.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private JobBoardContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

@@ -1,0 +1,68 @@
+﻿@page "/jobs/details"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Job</h2>
+    <hr />
+    @if (job is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">JobTitle</dt>
+            <dd class="col-sm-10">@job.JobTitle</dd>
+            <dt class="col-sm-2">JobDescription</dt>
+            <dd class="col-sm-10">@job.JobDescription</dd>
+            <dt class="col-sm-2">Requirements</dt>
+            <dd class="col-sm-10">@job.Requirements</dd>
+            <dt class="col-sm-2">Salary</dt>
+            <dd class="col-sm-10">@job.Salary</dd>
+            <dt class="col-sm-2">Location</dt>
+            <dd class="col-sm-10">@job.Location</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@job.Status</dd>
+            <dt class="col-sm-2">EmployerID</dt>
+            <dd class="col-sm-10">@job.EmployerID</dd>
+            <dt class="col-sm-2">JobCategoryID</dt>
+            <dd class="col-sm-10">@job.JobCategoryID</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@job.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@job.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@job.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@job.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/jobs/edit?id={job.Id}")">Edit</a> |
+            <a href="@($"/jobs")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Job? job;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        job = await context.Job.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (job is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

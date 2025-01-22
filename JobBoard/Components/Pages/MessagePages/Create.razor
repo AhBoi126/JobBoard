@@ -1,0 +1,84 @@
+﻿@page "/messages/create"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Message</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Message" OnValidSubmit="AddMessage" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="messagecontent" class="form-label">MessageContent:</label> 
+                <InputText id="messagecontent" @bind-Value="Message.MessageContent" class="form-control" /> 
+                <ValidationMessage For="() => Message.MessageContent" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="readstatus" class="form-label">ReadStatus:</label> 
+                <InputText id="readstatus" @bind-Value="Message.ReadStatus" class="form-control" /> 
+                <ValidationMessage For="() => Message.ReadStatus" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="jobseekerid" class="form-label">JobSeekerID:</label> 
+                <InputNumber id="jobseekerid" @bind-Value="Message.JobSeekerID" class="form-control" /> 
+                <ValidationMessage For="() => Message.JobSeekerID" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="employerid" class="form-label">EmployerID:</label> 
+                <InputNumber id="employerid" @bind-Value="Message.EmployerID" class="form-control" /> 
+                <ValidationMessage For="() => Message.EmployerID" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="chatboxid" class="form-label">ChatBoxID:</label> 
+                <InputNumber id="chatboxid" @bind-Value="Message.ChatBoxID" class="form-control" /> 
+                <ValidationMessage For="() => Message.ChatBoxID" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="datecreated" class="form-label">DateCreated:</label> 
+                <InputDate id="datecreated" @bind-Value="Message.DateCreated" class="form-control" /> 
+                <ValidationMessage For="() => Message.DateCreated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateupdated" class="form-label">DateUpdated:</label> 
+                <InputDate id="dateupdated" @bind-Value="Message.DateUpdated" class="form-control" /> 
+                <ValidationMessage For="() => Message.DateUpdated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="createdby" class="form-label">CreatedBy:</label> 
+                <InputText id="createdby" @bind-Value="Message.CreatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Message.CreatedBy" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="updatedby" class="form-label">UpdatedBy:</label> 
+                <InputText id="updatedby" @bind-Value="Message.UpdatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Message.UpdatedBy" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/messages">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Message Message { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddMessage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Message.Add(Message);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/messages");
+    }
+}

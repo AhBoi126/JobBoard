@@ -1,0 +1,69 @@
+﻿@page "/resumes/create"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Resume</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Resume" OnValidSubmit="AddResume" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="resumefilepath" class="form-label">ResumeFilePath:</label> 
+                <InputText id="resumefilepath" @bind-Value="Resume.ResumeFilePath" class="form-control" /> 
+                <ValidationMessage For="() => Resume.ResumeFilePath" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="jobseekerid" class="form-label">JobSeekerID:</label> 
+                <InputNumber id="jobseekerid" @bind-Value="Resume.JobSeekerID" class="form-control" /> 
+                <ValidationMessage For="() => Resume.JobSeekerID" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="datecreated" class="form-label">DateCreated:</label> 
+                <InputDate id="datecreated" @bind-Value="Resume.DateCreated" class="form-control" /> 
+                <ValidationMessage For="() => Resume.DateCreated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateupdated" class="form-label">DateUpdated:</label> 
+                <InputDate id="dateupdated" @bind-Value="Resume.DateUpdated" class="form-control" /> 
+                <ValidationMessage For="() => Resume.DateUpdated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="createdby" class="form-label">CreatedBy:</label> 
+                <InputText id="createdby" @bind-Value="Resume.CreatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Resume.CreatedBy" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="updatedby" class="form-label">UpdatedBy:</label> 
+                <InputText id="updatedby" @bind-Value="Resume.UpdatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Resume.UpdatedBy" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/resumes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Resume Resume { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddResume()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Resume.Add(Resume);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/resumes");
+    }
+}

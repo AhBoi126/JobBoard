@@ -1,0 +1,41 @@
+﻿@page "/resumes"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using FullStackProject.Domain
+@using JobBoard.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="resumes/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Resume">
+    <PropertyColumn Property="resume => resume.ResumeFilePath" />
+    <PropertyColumn Property="resume => resume.JobSeekerID" />
+    <PropertyColumn Property="resume => resume.DateCreated" />
+    <PropertyColumn Property="resume => resume.DateUpdated" />
+    <PropertyColumn Property="resume => resume.CreatedBy" />
+    <PropertyColumn Property="resume => resume.UpdatedBy" />
+
+    <TemplateColumn Context="resume">
+        <a href="@($"resumes/edit?id={resume.Id}")">Edit</a> |
+        <a href="@($"resumes/details?id={resume.Id}")">Details</a> |
+        <a href="@($"resumes/delete?id={resume.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private JobBoardContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

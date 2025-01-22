@@ -1,0 +1,139 @@
+﻿@page "/jobseekers/edit"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>JobSeeker</h2>
+<hr />
+@if (JobSeeker is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="JobSeeker" OnValidSubmit="UpdateJobSeeker" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="JobSeeker.Id" value="@JobSeeker.Id" />
+                <div class="mb-3">
+                    <label for="firstname" class="form-label">FirstName:</label>
+                    <InputText id="firstname" @bind-Value="JobSeeker.FirstName" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.FirstName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastname" class="form-label">LastName:</label>
+                    <InputText id="lastname" @bind-Value="JobSeeker.LastName" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.LastName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText id="email" @bind-Value="JobSeeker.Email" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.Email" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="contact" class="form-label">Contact:</label>
+                    <InputText id="contact" @bind-Value="JobSeeker.Contact" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.Contact" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="skills" class="form-label">Skills:</label>
+                    <InputText id="skills" @bind-Value="JobSeeker.Skills" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.Skills" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="profilepicturepath" class="form-label">ProfilePicturePath:</label>
+                    <InputText id="profilepicturepath" @bind-Value="JobSeeker.ProfilePicturePath" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.ProfilePicturePath" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location:</label>
+                    <InputText id="location" @bind-Value="JobSeeker.Location" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.Location" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="JobSeeker.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="JobSeeker.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="JobSeeker.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="JobSeeker.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => JobSeeker.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/jobseekers">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private JobSeeker? JobSeeker { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        JobSeeker ??= await context.JobSeeker.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (JobSeeker is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateJobSeeker()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(JobSeeker!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!JobSeekerExists(JobSeeker!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/jobseekers");
+    }
+
+    private bool JobSeekerExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.JobSeeker.Any(e => e.Id == id);
+    }
+}

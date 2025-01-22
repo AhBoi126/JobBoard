@@ -1,0 +1,109 @@
+﻿@page "/jobcategories/edit"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>JobCategory</h2>
+<hr />
+@if (JobCategory is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="JobCategory" OnValidSubmit="UpdateJobCategory" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="JobCategory.Id" value="@JobCategory.Id" />
+                <div class="mb-3">
+                    <label for="categoryid" class="form-label">CategoryID:</label>
+                    <InputNumber id="categoryid" @bind-Value="JobCategory.CategoryID" class="form-control" />
+                    <ValidationMessage For="() => JobCategory.CategoryID" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="JobCategory.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => JobCategory.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="JobCategory.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => JobCategory.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="JobCategory.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => JobCategory.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="JobCategory.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => JobCategory.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/jobcategories">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private JobCategory? JobCategory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        JobCategory ??= await context.JobCategory.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (JobCategory is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateJobCategory()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(JobCategory!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!JobCategoryExists(JobCategory!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/jobcategories");
+    }
+
+    private bool JobCategoryExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.JobCategory.Any(e => e.Id == id);
+    }
+}

@@ -1,0 +1,84 @@
+﻿@page "/employers/create"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Employer</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Employer" OnValidSubmit="AddEmployer" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="firstname" class="form-label">FirstName:</label> 
+                <InputText id="firstname" @bind-Value="Employer.FirstName" class="form-control" /> 
+                <ValidationMessage For="() => Employer.FirstName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastname" class="form-label">LastName:</label> 
+                <InputText id="lastname" @bind-Value="Employer.LastName" class="form-control" /> 
+                <ValidationMessage For="() => Employer.LastName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label> 
+                <InputText id="email" @bind-Value="Employer.Email" class="form-control" /> 
+                <ValidationMessage For="() => Employer.Email" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact:</label> 
+                <InputText id="contact" @bind-Value="Employer.Contact" class="form-control" /> 
+                <ValidationMessage For="() => Employer.Contact" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="comapanyid" class="form-label">ComapanyID:</label> 
+                <InputNumber id="comapanyid" @bind-Value="Employer.ComapanyID" class="form-control" /> 
+                <ValidationMessage For="() => Employer.ComapanyID" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="datecreated" class="form-label">DateCreated:</label> 
+                <InputDate id="datecreated" @bind-Value="Employer.DateCreated" class="form-control" /> 
+                <ValidationMessage For="() => Employer.DateCreated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateupdated" class="form-label">DateUpdated:</label> 
+                <InputDate id="dateupdated" @bind-Value="Employer.DateUpdated" class="form-control" /> 
+                <ValidationMessage For="() => Employer.DateUpdated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="createdby" class="form-label">CreatedBy:</label> 
+                <InputText id="createdby" @bind-Value="Employer.CreatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Employer.CreatedBy" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="updatedby" class="form-label">UpdatedBy:</label> 
+                <InputText id="updatedby" @bind-Value="Employer.UpdatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Employer.UpdatedBy" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/employers">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Employer Employer { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddEmployer()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Employer.Add(Employer);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/employers");
+    }
+}

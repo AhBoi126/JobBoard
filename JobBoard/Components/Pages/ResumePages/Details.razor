@@ -1,0 +1,56 @@
+﻿@page "/resumes/details"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Resume</h2>
+    <hr />
+    @if (resume is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ResumeFilePath</dt>
+            <dd class="col-sm-10">@resume.ResumeFilePath</dd>
+            <dt class="col-sm-2">JobSeekerID</dt>
+            <dd class="col-sm-10">@resume.JobSeekerID</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@resume.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@resume.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@resume.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@resume.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/resumes/edit?id={resume.Id}")">Edit</a> |
+            <a href="@($"/resumes")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Resume? resume;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        resume = await context.Resume.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (resume is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

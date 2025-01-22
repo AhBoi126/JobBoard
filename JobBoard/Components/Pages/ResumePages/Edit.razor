@@ -1,0 +1,114 @@
+﻿@page "/resumes/edit"
+@using Microsoft.EntityFrameworkCore
+@using FullStackProject.Domain
+@inject IDbContextFactory<JobBoard.Data.JobBoardContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Resume</h2>
+<hr />
+@if (Resume is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Resume" OnValidSubmit="UpdateResume" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Resume.Id" value="@Resume.Id" />
+                <div class="mb-3">
+                    <label for="resumefilepath" class="form-label">ResumeFilePath:</label>
+                    <InputText id="resumefilepath" @bind-Value="Resume.ResumeFilePath" class="form-control" />
+                    <ValidationMessage For="() => Resume.ResumeFilePath" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="jobseekerid" class="form-label">JobSeekerID:</label>
+                    <InputNumber id="jobseekerid" @bind-Value="Resume.JobSeekerID" class="form-control" />
+                    <ValidationMessage For="() => Resume.JobSeekerID" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Resume.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Resume.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Resume.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Resume.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Resume.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Resume.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Resume.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Resume.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/resumes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Resume? Resume { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Resume ??= await context.Resume.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Resume is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateResume()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Resume!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ResumeExists(Resume!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/resumes");
+    }
+
+    private bool ResumeExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Resume.Any(e => e.Id == id);
+    }
+}
